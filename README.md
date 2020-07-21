@@ -62,9 +62,10 @@ variable called `NUSKYBGD_AUXIL` that points to `auxil` (please see its
 [installation instructions](https://github.com/NuSTAR/nuskybgd)
 for details on this step, if necessary).
 
-To install, simply make sure all \*.pro routines from this distribution
-is somewhere in your `IDL` path.  Routines will be compiled as they are
-needed.
+To install, simply make sure all `\*.pro` routines from this distribution
+are somewhere in your `IDL` path and that all files in the `NuUtils`
+`auxil` directory are pointed to by the `NUSKYBGD_AUXIL` environment variable.
+Routines will be compiled as they are needed.
 
 ### Description
 
