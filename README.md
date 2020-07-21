@@ -469,7 +469,3 @@ temperatures in the cool core and broader diffuse medium regions.
 The poorest C-stat value corresponds to the Reg 2 B spectrum, which does
 show more variance in its ratio plot, but no systematic trend, suggesting
 the deviation may simply be random.
-
-
-
-### Validation on Extragalactic Point Sources
