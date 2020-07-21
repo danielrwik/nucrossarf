@@ -43,12 +43,24 @@ together correctly.
 - An `IDL` distribution: It is unclear if any version of `IDL` is too old,
 as no particularly fancy features are employed, but who can say?
 
-- The `astrolib` distribution is heavily used.  Add link.
+- The [AstroLib](https://github.com/wlandsman/IDLAstro) distribution is
+heavily used.
+It is assumed that you have a reasonably up-to-date version of the `AstroLib`
+and have this distribution included in your `IDL` `!path` variable.
 
-- This code shares custom routines with `nuskybgd` and related code,
-`nuimylze`, which was actually developed first but is still undergoing
-testing.  These shared routines should be contained in a separate distribution;
-ideally, they will be in the future, but for now all else you need be here.
+- This code shares custom routines with `NuSkyBGD` and a related code,
+`NuImylze`, the latter of which has not yet been released.  
+Most of these shared routines should be contained in a separate distribution,
+[NuUtils](https://github.com/danielrwik/nuutils).
+Again, it is assumed the `pro` directory is in your `IDL` path.
+The files inside the `auxil` directory should be added to your
+`NuSkyBGD` auxil directory, if you have that code installed
+(which is necessary if spectra, RMFs, and background spectra are desired
+to be produced by NuCrossARF as well as ARFs).
+If you do not have `NuSkyBGD` installed, you will need to add an environment
+variable called `NUSKYBGD_AUXIL` that points to `auxil` (please see its
+[installation instructions](https://github.com/NuSTAR/nuskybgd)
+for details on this step, if necessary).
 
 To install, simply make sure all \*.pro routines from this distribution
 is somewhere in your `IDL` path.  Routines will be compiled as they are
