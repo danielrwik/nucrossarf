@@ -1,6 +1,6 @@
 # NuCrossARF
 
-IDL software for the creation of auxiliary response files (ARFs) for any number
+`IDL` software for the creation of auxiliary response files (ARFs) for any number
 of sources, either point-like or diffuse, that properly account for
 the scattering of X-rays out of (and into) spectral extraction regions from
 *NuSTAR* observations.
