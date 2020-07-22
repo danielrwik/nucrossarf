@@ -34,7 +34,7 @@ if keyword_set(checkast) then begin
         outimg=outdir+outprint
         mkimgs,cldir,obsid,ab,3,30,outname=outimg
         fits_read,outimg,im,head
-        nucrossarf_updateastrom,iobs,nucrossarf_obs,head,imhead
+        nucrossarf__updateastrom,iobs,nucrossarf_obs,head,imhead
         fits_write,outimg,im,imhead
         print,'    '+outprint
     endfor

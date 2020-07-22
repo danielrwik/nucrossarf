@@ -100,7 +100,7 @@ called `70401000_A2146/`, so the event files are located inside
 `70401000_A2146/70401001002/event_cl/`, and the `IDL` session is running
 in the above directory, the obs file would look like this:
 
-    70401000_A2146  70401001002  A  -0.25   5.75    0.0    0.0    0.0
+    70401000_A2146  70401001002  A   0.25  -5.75    0.0    0.0    0.0
     70401000_A2146  70401001002  B   0.00   0.00    0.0    0.0    0.0
 
 The 5 numbers on each line correspond to astrometry shifts in units of
@@ -112,7 +112,12 @@ correct, just that the source distributions are defined relative to it.
 The first 2 numbers are shifts in x and y, respectively; if the A and B
 images were aligned, the target in A would be 5.75 pixels to the north (up)
 and 0.25 pixels to the east (left) relative to the position of the target
-in B.  The last 3 numbers refer to a rotation of the coordinates, which is
+in B.
+Therefore, the sense of the shift is that, with the WCS coordinates held fixed
+and aligned between A and B,
+the *image* of A would need a down (negative) shift and right (positive)
+shift to become aligned with the image from B.
+The last 3 numbers refer to a rotation of the coordinates, which is
 occasionally needed on the order of ~1 degree (so it can often be neglected).
 The first value is the rotation (in degrees, clockwise wrt the image,
 counterclockwise wrt coordinates, so the direction of north rotates toward
@@ -127,7 +132,7 @@ FPMB data (right) have been overlaid onto the FPMA image (left) using their
 native, uncorrected astrometry; a clear offset is present.
 To align their coordinates, the A image should be shifted down with the
 astrometry fixed, or equivalently the coordinate system should be shifted
-up, the latter of which is the sense of the shifts in the obs file.
+up; the former of which is the sense of the shifts in the OBS file.
 
 Note that shifts and rotations are not applied to the data itself, but
 to the placement of extraction regions and source distributions.
