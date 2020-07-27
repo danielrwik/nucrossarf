@@ -22,21 +22,24 @@ for ix=min(ii2d[0,*]),max(ii2d[0,*]) do begin
     shchcont=chcont-shift(chcont,1)
     i1=where(shchcont eq 1) 
     i2=where(shchcont eq -1)-1
-    if i1[0] eq -1 or i2[0] eq -1 then stop,'NUCROSSARF_DET: invalid region'
-    for iy=0,n_elements(i1)-1 do begin
-        npix+=(i2[iy]-i1[iy])+1
-        ii=where(evts.x-1 eq ix and evts.y-1 ge i1[iy] and evts.y-1 le i2[iy] and $
-              evts.grade ge 0 and evts.grade le 26)
-        if ii[0] ne -1 then begin
-            if n_elements(ii) gt 4096 then begin
-                for j=0,4095 do begin
-                    jj=where(evts[ii].pi eq j)
-                    if jj[0] ne -1 then specstr[j].counts+=n_elements(jj)
-                endfor
-            endif else for j=0,n_elements(ii)-1 do $
-                  specstr[evts[ii[j]].pi].counts++
-        endif
-    endfor
+;    if i1[0] eq -1 or i2[0] eq -1 then stop,'NUCROSSARF__SPEC: invalid region'
+    if i1[0] ne -1 then begin
+        for iy=0,n_elements(i1)-1 do begin
+            npix+=(i2[iy]-i1[iy])+1
+            ii=where(evts.x-1 eq ix and evts.y-1 ge i1[iy] and $
+                  evts.y-1 le i2[iy] and $
+                  evts.grade ge 0 and evts.grade le 26)
+            if ii[0] ne -1 then begin
+                if n_elements(ii) gt 4096 then begin
+                    for j=0,4095 do begin
+                        jj=where(evts[ii].pi eq j)
+                        if jj[0] ne -1 then specstr[j].counts+=n_elements(jj)
+                    endfor
+                endif else for j=0,n_elements(ii)-1 do $
+                      specstr[evts[ii[j]].pi].counts++
+            endif
+        endfor
+    endif
 endfor
 
 if npix ne long(total(mask)) or npix ne n_elements(ii2d[0,*]) then $

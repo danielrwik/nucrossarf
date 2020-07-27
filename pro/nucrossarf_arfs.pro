@@ -69,10 +69,8 @@ eband=['3to4.5','4.5to6','6to8','8to12','12to20','20to79']
 earf=findgen(4096)*0.04+1.6
 
 
-tstart=systime(/seconds)
 ipt=0
 iext=0
-
 
 xpsf=325
 psfsavs=file_search(nucrossarf_val.libdir+'/psf/'+obsid+'/psf'+ab+'*sav')
@@ -85,6 +83,7 @@ for i=0,n_elements(psfsavs)-1 do begin
     ss=strsplit(s[ns-1],'.',/extract)
     push,ypsfs,fix(ss[0])
 endfor
+
 if min(xpsfs) lt 0 or max(xpsfs) gt 999 or $
       min(ypsfs) lt 0 or max(ypsfs) gt 999 then $
   stop,'NUCROSSARF_ARFS: psf library contains sav files outside of 1000x1000 area'
@@ -128,39 +127,69 @@ if min(xarfs) lt 0 or max(xarfs) gt 999 or $
 ;endif
 
 
+
+print
+print,'Observation '+str(iobs+1)+' out of '+str(nobs)
+print,'  EVT: '+evtfile
+print,'    Mapping Library to Pixels of this Observation'
+
+
+
 allsrc=intarr(1000,1000)
 allsrc[min(xarfs):max(xarfs),min(yarfs):max(yarfs)]=1
 ii=where(allsrc gt 0.5)
 ii2d=array_indices(allsrc,ii)
 psfid=intarr(1000,1000)
 arfarrall=intarr(2,n_elements(ii))
-for i=0L,n_elements(ii)-1 do begin
-    blah=min((ii2d[0,i]-xarfs)^2+(ii2d[1,i]-yarfs)^2,jj)
-    arfarrall[*,i]=[xarfs[jj],yarfs[jj]]
-endfor
+nlib=n_elements(ii)
 pid=0
-undefine,xpsfarr,ypsfarr,xarfarr,yarfarr,pixperbin
-for i=min(xarfs),max(xarfs) do for j=min(yarfs),max(yarfs) do begin
-    jj=where(arfarrall[0,*] eq i and arfarrall[1,*] eq j)
-    if jj[0] ne -1 then begin
-        pid++
-        psfid[ii2d[0,jj],ii2d[1,jj]]=pid
-        push,xarfarr,i
-        push,yarfarr,j
-        blah=min((mean(ii2d[0,jj])-xpsfs)^2+(mean(ii2d[1,jj])-ypsfs)^2,kk)
+undefine,xpsfarr,ypsfarr,xarfarr,yarfarr,pidarr
+for i=0L,nlib-1 do begin
+    dist=min((ii2d[0,i]-xarfs)^2+(ii2d[1,i]-yarfs)^2,jj)
+    arfarrall[*,i]=[xarfs[jj],yarfs[jj]]
+    if dist lt 0.1 then begin
+        push,xarfarr,xarfs[jj]
+        push,yarfarr,yarfs[jj]
+        blah=min((ii2d[0,i]-xpsfs)^2+(ii2d[1,i]-ypsfs)^2,kk)
         push,xpsfarr,xpsfs[kk]
         push,ypsfarr,ypsfs[kk]
-        push,pixperbin,n_elements(jj)
+        pid++
+        push,pidarr,pid
     endif
+    if i mod long(nlib/1000)*10 eq 0 then $
+          counter,i+1,nlib,/percent,'      ARF/PSF binning: '
 endfor
+print
+npid=n_elements(pidarr)
+for i=0,npid-1 do begin
+    ll=where(xarfarr[i] eq arfarrall[0,*] and yarfarr[i] eq arfarrall[1,*])
+    if ll[0] eq -1 then stop,'NUCROSSARF_ARFS: dumb thing happened that shouldnt'
+    psfid[ii[ll]]=pidarr[i]
+    counter,i+1,n_elements(pidarr),/percent,'        Assigning ARF/PSF pixels: '
+endfor
+;pid=0
+;undefine,xpsfarr,ypsfarr,xarfarr,yarfarr
+;for i=min(xarfs),max(xarfs) do begin
+;  for j=min(yarfs),max(yarfs) do begin
+;    jj=where(arfarrall[0,*] eq i and arfarrall[1,*] eq j)
+;    if jj[0] ne -1 then begin
+;        pid++
+;        psfid[ii2d[0,jj],ii2d[1,jj]]=pid
+;        push,xarfarr,i
+;        push,yarfarr,j
+;        blah=min((mean(ii2d[0,jj])-xpsfs)^2+(mean(ii2d[1,jj])-ypsfs)^2,kk)
+;        push,xpsfarr,xpsfs[kk]
+;        push,ypsfarr,ypsfs[kk]
+;    endif
+;  endfor
+;  counter,i+1-min(xarfs),max(xarfs)-min(xarfs),/percent,'      ARF/PSF binning: '
+;endfor
+print
+print
 if n_elements(xpsfarr) ne pid or n_elements(xarfarr) ne pid then $
       stop,'NUCROSSARF_ARFS: issue with mapping library to pixels'
 
 
-print
-print,'Observation '+str(iobs+1)+' out of '+str(nobs)
-print,'EVT: '+evtfile
-print
 
 
 for isrc=0,nmod-1 do begin
@@ -178,14 +207,13 @@ regpsfsave=fltarr(nreg,1000,1000)
 
 undefine,offaxis
 if order[isrc] eq 1 then begin
-    ra=nucrossarf_src[ipt].ptra
-    dec=nucrossarf_src[ipt].ptdec
+    ra=nucrossarf_src[isrc].ptra
+    dec=nucrossarf_src[isrc].ptdec
     scl=1.
     ipt++
 endif else if order[isrc] eq 2 then begin
     if nucrossarf_src[isrc].extsrcimg eq 'flat' then begin
-        srcim=reg2mask(cldir+'dummy.fits',nucrossarf_val.extdir+'/'+ $
-              nucrossarf_src[isrc].extregimg)
+        srcim=reg2mask(cldir+'dummy.fits',regnames[isrc])
         regim=srcim
         hreg=imhead
         hsrc=imhead
@@ -216,7 +244,6 @@ endif else if order[isrc] eq 2 then begin
         srcim=newsrcim
         hsrc=newhsrc
         ii=where(regim gt 0.5)
-        pixperbin/=nucrossarf_val.darf^2
     endif
     ii2d=array_indices(regim,ii)
     xyad,hreg,ii2d[0,*],ii2d[1,*],ra,dec
@@ -227,7 +254,6 @@ endif else if order[isrc] eq 2 then begin
     scl=srcim[ii]/total(srcim[ii])
     iext++
 endif else stop,'NUCROSSARF_ARFS: src '+str(isrc+1)+' neither pt nor ext???'
-
 
 adxy,imhead,ra,dec,xo,yo
 x=xo
@@ -241,7 +267,12 @@ y=yo
 xs=x
 ys=y
 scls=scl
-if n_elements(x) gt 100. then plotprog=1 else plotprog=0
+if n_elements(x) gt 10. then plotprog=1 else plotprog=0
+
+
+
+print,'  Source '+str(isrc+1)+' out of '+str(nmod)
+
 
 rpsfid=psfid[x[0],y[0]]
 idxy=intarr(n_elements(x))
@@ -255,9 +286,6 @@ rpsfid=rpsfid[sort(rpsfid)]
 
 
 
-print,'  Source '+str(isrc+1)+' out of '+str(nmod)
-
-
 if plotprog then begin
     progim=contimg(det,0.01)
     ii=where(progim gt 0.5)
@@ -267,6 +295,13 @@ if plotprog then begin
 ;    progim[ii]=2
     for i=0,n_elements(x)-1 do progim[x[i]-0.6:x[i]+0.6,y[i]-0.6:y[i]+0.6]=2
 endif
+
+
+undefine,pixperbin
+for ilib=0,n_elements(rpsfid)-1 do begin
+    ii=where(idxy eq rpsfid[ilib])
+    push,pixperbin,n_elements(ii)
+endfor
 
 
 arfs=fltarr(nreg,n_elements(earf))
@@ -340,11 +375,14 @@ if plotprog then begin
     if totaltime/3600. lt 2. then strtime=str(fix(totaltime/60.))+' min'
     if totaltime/60. lt 2. then strtime=str(fix(totaltime))+' sec'
     xyouts,0.02,0.02,'Est. time remaining: '+strtime,/normal,charsi=3.0,charth=2
-    counter,ilib+1,n_elements(rpsfid),/percent,'Percent complete: '
+    counter,ilib+1,n_elements(rpsfid),/percent,'    Status: '
 endif
 
 endfor   ; ilib loop
-if plotprog then print else print,'Point Source ARF made.'
+
+if plotprog then print,'    Completed: '+systime() $
+      else print,'Point Source ARF made.'
+
 
 ; write arf & cross-arfs for that src (model)
 

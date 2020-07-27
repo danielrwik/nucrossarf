@@ -6,6 +6,16 @@ ab=nucrossarf_obs[iobs].ab
 xybox=nucrossarf_obs[iobs].xybox
 
 nucrossarf__header,cldir,evtfile,header
+
+bgddir=nucrossarf_val.bgddir
+det=fltarr(1000,1000)
+for i=0,3 do begin
+    file=cldir+'/'+bgddir+'/det'+str(i)+ab+'im.fits'
+    if file_test(file) then fits_read,file,im $
+          else stop,'NUCROSSARF__LIBRARIES: Det image file '+file+' not found.'
+    det+=im
+endfor
+
 pa=sxpar(header,'PA_PNT')+1.0
 parad=pa*!pi/180.
 
@@ -27,7 +37,7 @@ endfor
 pxnew=(px-500.)*cos(parad)-(py-500.)*sin(parad)+500.
 pynew=(px-500.)*sin(parad)+(py-500.)*cos(parad)+500.
 ii=where(pxnew ge xybox[0] and pxnew le xybox[2] and $
-      pynew ge xybox[1] and pynew le xybox[3])
+      pynew ge xybox[1] and pynew le xybox[3] and det[pxnew,pynew] gt 0.1)
 pxnew=pxnew[ii]
 pynew=pynew[ii]
 

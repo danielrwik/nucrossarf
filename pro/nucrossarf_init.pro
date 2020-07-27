@@ -282,9 +282,9 @@ while ~eof(lun) do begin
             if spl[1] ne 'flat' then begin
               if not file_test(pvals[14]+'/'+extsrcimg[-1]) then $
                   stop,'NUCROSSARF_INIT: file not found '+pvals[14]+'/'+extsrcimg[-1]
-            endif
-            if not file_test(pvals[14]+'/'+extregimg[-1]) then $
+              if not file_test(pvals[14]+'/'+extregimg[-1]) then $
                   stop,'NUCROSSARF_INIT: file not found '+pvals[14]+'/'+extregimg[-1]
+            endif
             push,extorder,o
             push,ptorder,-999
             push,bgdorder,-999

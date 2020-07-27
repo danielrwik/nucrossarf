@@ -68,7 +68,7 @@ if nucrossarf_val.checkregions then begin
         regmask[*,*]+=mask
     endfor
     if max(mask) gt 1 then $
-      stop,'NUIMYLZE_DET: regions overlap, events will be included more than once'+$
+     stop,'NUCROSSARF_DET: regions overlap, events will be included more than once'+$
             string(10B)+'        set param noregch to 1 to proceed anyway,'+$
             string(10B)+'        which I think would be a mistake, statistically'+$
             srting(10B)+'        speaking, but hey, it is your life.'
